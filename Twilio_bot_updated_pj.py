@@ -6,8 +6,8 @@
 '''join sandbox by sending "join until-speech" '''
 
 from twilio.rest import Client 
-account_sid = 'ACa0240b19312bea7ebb0ad16d5dba1ef1'
-auth_token = 'cb5e0f306256b89ac7cdc8c1cc68f83f'
+account_sid = 'ACb272f33e93f02976e9ba5c7fae0e462e'
+auth_token = '28442aab8b01eef5236135269ecf6f3f'
 client = Client(account_sid, auth_token) 
 
 def sendtxt(message , person="+919860224038"):      #paste your whatsapp number here
@@ -70,12 +70,16 @@ def switch4(arg4):
              "2":"your order is taken by our side",
             }
     return dictl.get(arg4," I don't understand your response plz make it correct")
+
+item_dict = {'2':{1:'amul milk',2:'warna milk',3:'gokul milk',4:'nandini milk'},'3':{ 1:'Mug',2:'Masoor',3:'Harbhara',4:'Toordal',5:'Masoordal'},'4':{1:'Fortune',2:'Gemini',3:'Safola',4:'Star',5:'Kirtigold'},'5':{1:'surfexcel',2: 'vim',3:'wheel',4:'tiptop',5:'hamam'}}
+price_dict = {'2':{1:56,2:56,3:56,4:56},'3':{ 1:80,2:60,3:70,4:70,5:75},'4':{1:130,2:128,3:120,4:120,5:115},'5':{1:10,2:10,3:8,4:7,5:6}}
   
 class sub1():
     flag = 0
     cat = 0
     item = 0
-    final = 'Your Cart \nItem   Quantity\n'
+    final = 'Your Cart \nItem   Quantity   Cost\n'
+    total = 0
     def __init__(self,cust):
         self.cust = cust
         self.cart = {'2':{},'3':{},'4':{},'5':{}}
@@ -88,17 +92,56 @@ class sub1():
             self.flag+=1
             print(self.flag)
             return switch1("1")
+        elif('add' in arg):
+            _, it, qu = arg.split()
+            lst_1=[]
+            lst_2 = []
+            for i in item_dict.values():
+                lst_1.append(list(i.keys()))
+                lst_2.append(list(i.values()))
+
+            flatList_1 = [ item for elem in lst_1 for item in elem]
+            flatList_2 = [ item for elem in lst_2 for item in elem]                           
+            for i in lst_2:
+                if(it in i):
+                    self.cat =str( lst_2.index(i)+2)
+            print(flatList_1)
+            print(flatList_2)
+            if(it not in flatList_2):
+                return('You have misspelt the item... Use "CAT" to see the list of items')
+            position = flatList_2.index(it)
+            it = flatList_1[position]
+            it = int(it)
+            qu = int(qu)
+            print(it,qu)
+            if(it not in item_dict[self.cat].keys()):
+                return('Enter valid choice')
+            itm = item_dict[self.cat][it]
+            price =  price_dict[self.cat][it]*qu
+            self.total+=price
+            self.final+=itm
+            self.final+="   "
+            self.final+=str(qu)
+            self.final+=' '
+            self.final+=switchq(self.cat)
+            self.final+='   '
+            self.final+= '₹'+ str(price)
+            self.final+='\n'
+            op = "Succesfully Added to CART\n'EXIT' to checkout\n\n\n'CART' to view cart\n 'CAT' to view categories"
+            self.cart[self.cat][it]=qu
+            return op
+            
         elif(self.flag==0 and arg =="2"):
             self.flag=0
             return "Thankyou"
         elif(arg=='EXIT'):
-            op = self.final+'Thank-you for shopping with us'
+            op = self.final+'\nTotal: ₹'+ str(self.total)+'\nThank-you for shopping with us'
             return op
         elif(arg=='CAT'):
             self.flag=1
             return switch1('1')
         elif(arg=='CART'):
-            return self.final+"\n\n'EXIT' to checkout\n'CAT' to view categories"
+            return self.final+'\nTotal: ₹'+ str(self.total)+"\n\n'EXIT' to checkout\n'CAT' to view categories"
         elif(self.flag==1 and (arg =="1" or arg=="2" or arg=="3" or arg=="4")):
             self.cat = str(int(arg)+1)
             self.flag+=1
@@ -113,11 +156,21 @@ class sub1():
         elif(self.flag==3):
             lst = []
             it, qu = arg.split()
-            self.final+=it
+            it = int(it)
+            qu = int(qu)
+            print(it,qu)
+            if(it not in item_dict[self.cat].keys()):
+                return('Enter valid choice')
+            itm = item_dict[self.cat][it]
+            price =  price_dict[self.cat][it]*qu
+            self.total+=price
+            self.final+=itm
             self.final+="   "
-            self.final+=qu
+            self.final+=str(qu)
             self.final+=' '
             self.final+=switchq(self.cat)
+            self.final+='   '
+            self.final+= '₹'+ str(price)
             self.final+='\n'
             op = "Succesfully Added to CART\n'EXIT' to checkout\n\n\n'CART' to view cart\n 'CAT' to view categories"
             self.cart[self.cat][it]=qu
